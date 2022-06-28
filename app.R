@@ -60,6 +60,8 @@ server <- function(input, output, session) {
            y = "Lap Speed (mph)") +
       theme(axis.title.y.left = element_text(face = "bold"),
             axis.title.x.bottom = element_text(face = "bold"),
+            legend.title = element_text(size = 14),
+            legend.text = element_text(size = 12),
       )
   })
 }
