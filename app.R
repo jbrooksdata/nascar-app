@@ -1,49 +1,67 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
-
 library(shiny)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
 
-# Define UI for application that draws a histogram
+df <- readRDS("3yrdata.rds") %>%
+  filter(season == 2021)
+
 ui <- fluidPage(
-
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
-    # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
-            sliderInput("bins",
-                        "Number of bins:",
-                        min = 1,
-                        max = 50,
-                        value = 30)
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-           plotOutput("distPlot")
-        )
+  
+  titlePanel("Driver Stats, 2021 Season"),
+  
+  sidebarLayout(
+    sidebarPanel(
+      selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)), # figure out why only 3 races at most will show, also try to order them as they appear
+      selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= 1, options = list(maxOptions = 10000)),
+      selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= 2, options = list(maxOptions = 10000))
+    ),
+    
+    mainPanel(
+      plotOutput("speed", height = 600) # increase height of plot
     )
+  )
 )
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    })
+server <- function(input, output, session) {
+  
+  updateSelectizeInput(session, 'raceInput',
+                       choices = unique(df$race)
+  )
+  
+  updateSelectizeInput(session, 'driverInput1',
+                       choices = sort(unique(df$driver)), # show every driver from season in alphabetical order
+                       server = TRUE
+  )
+  
+  updateSelectizeInput(session, 'driverInput2',
+                       choices = sort(unique(df$driver)),
+                       server = TRUE
+  )
+  
+  output$speed <- renderPlot({ # figure out why the legend automatically orders alphabetically
+    df %>%
+      filter(race == input$raceInput) %>%
+      filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
+      ggplot(df, mapping = aes(x = Lap, y = LapSpeed)) +
+      geom_path(mapping = aes(x = Lap, y = LapSpeed, col = driver), size = 1.25, alpha = 0.6) +
+      xlim(0,max(df %>% filter(race == input$raceInput) %>% summarise(Lap))) +
+      ylim(0,max(df %>% filter(race == input$raceInput) %>% summarise(LapSpeed))) +
+      geom_vline(xintercept = max(df %>% filter(race == input$raceInput) %>% summarise(Lap)),
+                 alpha = 0.75,
+                 size = 0.5,
+                 color = "black",
+                 linetype = "dashed") +
+      theme_fivethirtyeight() +
+      labs(title = "Lap Speed Comparison",
+           subtitle = "",
+           caption = "data: nascar.com",
+           x = "Lap",
+           y = "Lap Speed (mph)") +
+      theme(axis.title.y.left = element_text(face = "bold"),
+            axis.title.x.bottom = element_text(face = "bold"),
+      )
+  })
 }
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
