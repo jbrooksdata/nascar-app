@@ -58,7 +58,7 @@ server <- function(input, output, session) {
       theme_fivethirtyeight() +
       labs(title = "Lap Speed Comparison",
            subtitle = "",
-           caption = "data: nascar.com",
+           caption = "@jbrooksdata | data: nascar.com",
            x = "Lap",
            y = "Lap Speed (mph)") +
       theme(axis.title.y.left = element_text(face = "bold"),
@@ -66,7 +66,7 @@ server <- function(input, output, session) {
             axis.text.x = element_text(size = 12),
             axis.text.y = element_text(size = 12),
             legend.title = element_text(size = 14),
-            legend.text = element_text(size = 12),
+            legend.text = element_text(size = 12)
       )
   })
   
@@ -81,13 +81,15 @@ server <- function(input, output, session) {
       theme_fivethirtyeight() +
       labs(title = "Lap Speed Distribution",
            subtitle = "",
-           caption = "data: nascar.com",
+           caption = "@jbrooksdata | data: nascar.com",
            x = "Lap Speed (mph)",
            y = "Frequency") +
       theme(axis.title.y.left = element_text(face = "bold"),
             axis.title.x.bottom = element_text(face = "bold"),
             axis.text.x = element_text(size = 12),
-            axis.text.y = element_text(size = 12))
+            axis.text.y = element_text(size = 12),
+            legend.title = element_text(size = 14),
+            legend.text = element_text(size = 12))
   }
   )
 }
