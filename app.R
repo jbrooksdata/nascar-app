@@ -8,7 +8,7 @@ df <- readRDS("3yrdata.rds") %>%
 
 ui <- fluidPage(
   
-  titlePanel("Driver Stats, 2021 Season"),
+  titlePanel("Driver Stats"),
   
   sidebarLayout(
     sidebarPanel(
@@ -18,7 +18,8 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      plotOutput("speed", height = 600) # increase height of plot
+      plotOutput("speed", height = 500),
+      plotOutput("density", height = 350)
     )
   )
 )
@@ -55,7 +56,6 @@ server <- function(input, output, session) {
       theme_fivethirtyeight() +
       labs(title = "Lap Speed Comparison",
            subtitle = "",
-           caption = "data: nascar.com",
            x = "Lap",
            y = "Lap Speed (mph)") +
       theme(axis.title.y.left = element_text(face = "bold"),
@@ -64,6 +64,25 @@ server <- function(input, output, session) {
             legend.text = element_text(size = 12),
       )
   })
+  
+  output$density <- renderPlot({ 
+    df %>%
+      filter(race == input$raceInput) %>%
+      filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
+      ggplot(df, mapping = aes(x = LapSpeed, fill = driver)) +
+      geom_density(show.legend = TRUE, alpha = 0.5, size = 0.75) +
+      xlim(max(df %>% filter(race == input$raceInput) %>% summarise(LapSpeed) * 0.85, na.rm = TRUE),
+           max(df %>% filter(race == input$raceInput) %>% summarise(LapSpeed))) +
+      theme_fivethirtyeight() +
+      labs(title = "Lap Speed Distribution",
+           subtitle = "",
+           caption = "data: nascar.com",
+           x = "Lap Speed (mph)",
+           y = "Frequency") +
+      theme(axis.title.y.left = element_text(face = "bold"),
+            axis.title.x.bottom = element_text(face = "bold"))
+  }
+  )
 }
 
 shinyApp(ui, server)
