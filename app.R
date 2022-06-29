@@ -8,13 +8,13 @@ df <- readRDS("3yrdata.rds") %>%
 
 ui <- fluidPage(
   
-  titlePanel("Driver Stats"),
+  titlePanel("2021 Driver Stats"),
   
   sidebarLayout(
     sidebarPanel(
       selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)), # figure out why only 3 races at most will show, also try to order them as they appear
-      selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= 1, options = list(maxOptions = 10000)),
-      selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= 2, options = list(maxOptions = 10000))
+      selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
+      selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= NULL, options = list(maxOptions = 10000))
     ),
     
     mainPanel(
@@ -32,11 +32,13 @@ server <- function(input, output, session) {
   
   updateSelectizeInput(session, 'driverInput1',
                        choices = sort(unique(df$driver)), # show every driver from season in alphabetical order
+                       selected = "Chase Elliott",
                        server = TRUE
   )
   
   updateSelectizeInput(session, 'driverInput2',
                        choices = sort(unique(df$driver)),
+                       selected = "Kyle Larson",
                        server = TRUE
   )
   
@@ -56,10 +58,13 @@ server <- function(input, output, session) {
       theme_fivethirtyeight() +
       labs(title = "Lap Speed Comparison",
            subtitle = "",
+           caption = "data: nascar.com",
            x = "Lap",
            y = "Lap Speed (mph)") +
       theme(axis.title.y.left = element_text(face = "bold"),
             axis.title.x.bottom = element_text(face = "bold"),
+            axis.text.x = element_text(size = 12),
+            axis.text.y = element_text(size = 12),
             legend.title = element_text(size = 14),
             legend.text = element_text(size = 12),
       )
@@ -80,7 +85,9 @@ server <- function(input, output, session) {
            x = "Lap Speed (mph)",
            y = "Frequency") +
       theme(axis.title.y.left = element_text(face = "bold"),
-            axis.title.x.bottom = element_text(face = "bold"))
+            axis.title.x.bottom = element_text(face = "bold"),
+            axis.text.x = element_text(size = 12),
+            axis.text.y = element_text(size = 12))
   }
   )
 }
