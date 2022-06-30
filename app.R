@@ -4,7 +4,8 @@ library(ggplot2)
 library(ggthemes)
 
 df <- readRDS("3yrdata.rds") %>%
-  filter(season == 2021)
+  filter(season == 2021) %>%
+  slice(-c(257461,257573))
 
 ui <- fluidPage(
   
@@ -60,7 +61,7 @@ server <- function(input, output, session) {
            subtitle = "",
            caption = "@jbrooksdata | data: nascar.com",
            x = "Lap",
-           y = "Lap Speed (mph)") +
+           y = "Speed (mph)") +
       theme(axis.title.y.left = element_text(face = "bold"),
             axis.title.x.bottom = element_text(face = "bold"),
             axis.text.x = element_text(size = 12),
@@ -82,7 +83,7 @@ server <- function(input, output, session) {
       labs(title = "Lap Speed Distribution",
            subtitle = "",
            caption = "@jbrooksdata | data: nascar.com",
-           x = "Lap Speed (mph)",
+           x = "Speed (mph)",
            y = "Frequency") +
       theme(axis.title.y.left = element_text(face = "bold"),
             axis.title.x.bottom = element_text(face = "bold"),
