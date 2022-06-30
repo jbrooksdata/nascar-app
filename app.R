@@ -57,7 +57,7 @@ server <- function(input, output, session) {
                  color = "black",
                  linetype = "dashed") +
       theme_fivethirtyeight() +
-      labs(title = "Lap Speed Comparison",
+      labs(title = "Driver Speed Comparison",
            subtitle = "",
            caption = "@jbrooksdata | data: nascar.com",
            x = "Lap",
@@ -77,11 +77,18 @@ server <- function(input, output, session) {
       filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
       ggplot(df, mapping = aes(x = LapSpeed, fill = driver)) +
       geom_density(show.legend = TRUE, alpha = 0.5, size = 0.75) +
-      xlim(max(df %>% filter(race == input$raceInput) %>% summarise(LapSpeed) * 0.85, na.rm = TRUE),
-           max(df %>% filter(race == input$raceInput) %>% summarise(LapSpeed))) +
+      xlim(max(df %>%
+                 filter(race == input$raceInput) %>%
+                 filter(FlagState == 1) %>%
+                 summarise(LapSpeed) * 0.85,
+               na.rm = TRUE),
+           max(df %>%
+                 filter(race == input$raceInput) %>%
+                 filter(FlagState == 1) %>%
+                 summarise(LapSpeed))) +
       theme_fivethirtyeight() +
-      labs(title = "Lap Speed Distribution",
-           subtitle = "",
+      labs(title = "Driver Speed Distribution",
+           subtitle = "Green flag laps",
            caption = "@jbrooksdata | data: nascar.com",
            x = "Speed (mph)",
            y = "Frequency") +
