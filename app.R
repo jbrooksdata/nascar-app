@@ -7,6 +7,8 @@ df <- readRDS("3yrdata.rds") %>%
   filter(season == 2021) %>%
   slice(-c(257461,257573))
 
+stops <- readRDS("2021stops.rds")
+
 ui <- fluidPage(
   
   titlePanel("2021 Driver Stats"),
@@ -15,7 +17,8 @@ ui <- fluidPage(
     sidebarPanel(
       selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)), # figure out why only 3 races at most will show, also try to order them as they appear
       selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
-      selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= NULL, options = list(maxOptions = 10000))
+      selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
+      tableOutput("stoptable")
     ),
     
     mainPanel(
@@ -42,6 +45,13 @@ server <- function(input, output, session) {
                        selected = "Kyle Larson",
                        server = TRUE
   )
+  
+  output$stoptable <- renderTable({
+    stops %>%
+      filter(race == input$raceInput) %>%
+      filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
+      select(Driver = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
+  })
   
   output$speed <- renderPlot({ # figure out why the legend automatically orders alphabetically
     df %>%
@@ -80,7 +90,7 @@ server <- function(input, output, session) {
       xlim(max(df %>%
                  filter(race == input$raceInput) %>%
                  filter(FlagState == 1) %>%
-                 summarise(LapSpeed) * 0.85,
+                 summarise(LapSpeed) * 0.9,
                na.rm = TRUE),
            max(df %>%
                  filter(race == input$raceInput) %>%
@@ -88,7 +98,7 @@ server <- function(input, output, session) {
                  summarise(LapSpeed))) +
       theme_fivethirtyeight() +
       labs(title = "Driver Speed Distribution",
-           subtitle = "Green flag laps",
+           subtitle = "on green flag laps",
            caption = "@jbrooksdata | data: nascar.com",
            x = "Speed (mph)",
            y = "Frequency") +
