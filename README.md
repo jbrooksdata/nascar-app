@@ -8,6 +8,8 @@ season of the NASCAR Cup Series.
 Making a selection in the Race, Driver 1, and Driver 2 dropdowns will populate a line chart comparing the two drivers' lap times throughout the race,
 a density distribution plot to show each drivers' performance on green flag laps, and a data table highlighting details for each of their pit stops in the selected race.
 
+![](example.png)
+
 ## Data
 
 - Data was scraped from the NASCAR.com API.
