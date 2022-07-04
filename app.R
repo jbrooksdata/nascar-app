@@ -18,7 +18,8 @@ ui <- fluidPage(
       selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)), # figure out why only 3 races at most will show, also try to order them as they appear
       selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
       selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
-      tableOutput("stoptable")
+      tableOutput("driver1stops"),
+      tableOutput("driver2stops")
     ),
     
     mainPanel(
@@ -46,11 +47,18 @@ server <- function(input, output, session) {
                        server = TRUE
   )
   
-  output$stoptable <- renderTable({
+  output$driver1stops <- renderTable({
     stops %>%
       filter(race == input$raceInput) %>%
-      filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
-      select(Driver = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
+      filter(driver == input$driverInput1) %>%
+      select(`Driver 1` = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
+  })
+  
+  output$driver2stops <- renderTable({
+    stops %>%
+      filter(race == input$raceInput) %>%
+      filter(driver == input$driverInput2) %>%
+      select(`Driver 2` = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
   })
   
   output$speed <- renderPlot({ # figure out why the legend automatically orders alphabetically
