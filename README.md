@@ -15,10 +15,10 @@ a density distribution plot to show each drivers' performance on green flag laps
 - Data was scraped from the NASCAR.com API.
 - This project currently only features data from the 2021 season.
 - Earlier versions of the data scrapers are available in my [NASCAR data repo.](https://github.com/jbrooksdata/nascar-data)
+- Some pit data is unavailable (stop durations for the Food City Dirt Race) and some non-green flag lap times are incorrect via the API.
 
 ## To-Do
 
-- A small number of race selections fail to join with pit stop data or return duplicate stop information.
 - Users should have the option to save a copy of a full comparison in a format like PNG or PDF.
 - A reactive "Season" dropdown will allow users to compare drivers within the 2020, 2021, or 2022 seasons.
 - Similar data is also available for the Xfinity Series and Truck Series. This could be accessible to users via tabsets or another dropdown.
