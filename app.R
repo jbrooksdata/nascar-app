@@ -1,13 +1,13 @@
-library(shiny)
-library(dplyr)
-library(ggplot2)
-library(ggthemes)
+library(shiny) # creating and deploying app
+library(dplyr) # basic functions; mainly %>%
+library(ggplot2) # better looking plots
+library(ggthemes) # even better looking plots
 
-df <- readRDS("3yrdata.rds") %>%
+df <- readRDS("3yrdata.rds") %>% # load lap data and filter
   filter(season == 2021) %>%
-  slice(-c(257461,257573))
+  slice(-c(257461,257573)) # remove corrupt rows
 
-stops <- readRDS("2021stops.rds")
+stops <- readRDS("2021stops.rds") # load pit stop data
 
 ui <- fluidPage(
   
@@ -15,7 +15,7 @@ ui <- fluidPage(
   
   sidebarLayout(
     sidebarPanel(
-      selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)), # figure out why only 3 races at most will show, also try to order them as they appear
+      selectizeInput("raceInput", "Race:", choices=NULL, selected="", options = list(maxOptions = 10000)),
       selectizeInput("driverInput1", "Driver 1:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
       selectizeInput("driverInput2", "Driver 2:", choices=NULL, selected= NULL, options = list(maxOptions = 10000)),
       tableOutput("driver1stops"),
@@ -24,7 +24,7 @@ ui <- fluidPage(
     
     mainPanel(
       plotOutput("speed", height = 500),
-      plotOutput("density", height = 350)
+      plotOutput("density", height = 350) # manual height for each, ideal for 1920x1080
     )
   )
 )
@@ -36,7 +36,7 @@ server <- function(input, output, session) {
   )
   
   updateSelectizeInput(session, 'driverInput1',
-                       choices = sort(unique(df$driver)), # show every driver from season in alphabetical order
+                       choices = sort(unique(df$driver)), # alphabetize drivers
                        selected = "Chase Elliott",
                        server = TRUE
   )
@@ -47,21 +47,21 @@ server <- function(input, output, session) {
                        server = TRUE
   )
   
-  output$driver1stops <- renderTable({
+  output$driver1stops <- renderTable({ # return table of pit stop data
     stops %>%
       filter(race == input$raceInput) %>%
       filter(driver == input$driverInput1) %>%
       select(`Driver 1` = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
   })
   
-  output$driver2stops <- renderTable({
+  output$driver2stops <- renderTable({ # separate table by driver
     stops %>%
       filter(race == input$raceInput) %>%
       filter(driver == input$driverInput2) %>%
       select(`Driver 2` = driver, Lap = pit_in_lap_count, `Stop Type` = pit_stop_type, Duration = pit_stop_duration)
   })
   
-  output$speed <- renderPlot({ # figure out why the legend automatically orders alphabetically
+  output$speed <- renderPlot({ # return line plot for comparison of lap speed throughout race
     df %>%
       filter(race == input$raceInput) %>%
       filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
@@ -73,7 +73,7 @@ server <- function(input, output, session) {
                  alpha = 0.75,
                  size = 0.5,
                  color = "black",
-                 linetype = "dashed") +
+                 linetype = "dashed") + # dashed line for end of race
       theme_fivethirtyeight() +
       labs(title = "Driver Speed Comparison",
            subtitle = "",
@@ -84,12 +84,12 @@ server <- function(input, output, session) {
             axis.title.x.bottom = element_text(face = "bold"),
             axis.text.x = element_text(size = 12),
             axis.text.y = element_text(size = 12),
-            legend.title = element_text(size = 14),
+            legend.title = element_text(size = 14), ### figure out why the legend automatically orders alphabetically
             legend.text = element_text(size = 12)
       )
   })
   
-  output$density <- renderPlot({ 
+  output$density <- renderPlot({ # return density plot of for lap speed comparison
     df %>%
       filter(race == input$raceInput) %>%
       filter(driver %in% c(input$driverInput1,input$driverInput2)) %>%
@@ -102,7 +102,7 @@ server <- function(input, output, session) {
                na.rm = TRUE),
            max(df %>%
                  filter(race == input$raceInput) %>%
-                 filter(FlagState == 1) %>%
+                 filter(FlagState == 1) %>% # return speeds for green flag laps
                  summarise(LapSpeed))) +
       theme_fivethirtyeight() +
       labs(title = "Driver Speed Distribution",
