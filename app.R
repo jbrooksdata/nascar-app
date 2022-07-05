@@ -7,7 +7,8 @@ df <- readRDS("3yrdata.rds") %>% # load lap data and filter
   filter(season == 2021) %>%
   slice(-c(257461,257573)) # remove corrupt rows
 
-stops <- readRDS("2021stops.rds") # load pit stop data
+stops <- readRDS("2021stops.rds") %>% # load pit stop data
+  filter(pit_in_lap_count != 0) # ignore any pre-race logs
 
 ui <- fluidPage(
   
